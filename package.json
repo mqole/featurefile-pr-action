@@ -4,10 +4,11 @@
   "description": "Action to generate a summary of a Feature File, composed from the files changed in a PR and the PR description body.",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "ncc build src/main.js -o dist"
   },
   "keywords": [],
-  "type": "commonjs",
+  "type": "module",
   "dependencies": {
     "@actions/core": "^3.0.1",
     "@actions/github": "^9.1.1"
