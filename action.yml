@@ -1,0 +1,30 @@
+name: Generate Feature File Summary
+description: Composes a summary of a Feature File for a PR.
+
+inputs:
+  modified:
+    description: A list of modified files.
+  removed:
+    description: A list of removed files.
+  added:
+    description: A list of changed files.
+  basename:
+    description: The base repository full name, username/reponame.
+    required: true
+  basesha:
+    description: The base branch commit hash.
+    required: true
+  headname:
+    description: The head repository full name, username/reponame.
+    required: true
+  headsha:
+    description: The head branch commit hash.
+    required: true
+
+outputs:
+  summary:
+    description: A Markdown summary of the Feature File that will be generated.
+
+runs:
+  using: node24
+  main: index.js

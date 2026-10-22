@@ -1,0 +1,15 @@
+{
+  "name": "featurefile-pr-action",
+  "version": "1.0.0",
+  "description": "Action to generate a summary of a Feature File, composed from the files changed in a PR and the PR description body.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "type": "commonjs",
+  "dependencies": {
+    "@actions/core": "^3.0.1",
+    "@actions/github": "^9.1.1"
+  }
+}
