@@ -29,13 +29,14 @@ waga baga bobo
 🔎 feature to include all files
 `
 
-    let summary = [`Feature File Summary; head commit ${headsha} merging into ${basesha}${nl}`]
-    summary.push(`Here is a summary of which changes will be made to Feature Files:${nl}${nl}`)
+    let summary = [`### Feature File Summary; head commit ${headsha} merging into ${basesha}${nl}`]
+    summary.push(`#### Here is a summary of which changes will be made to Feature Files:${nl}<hr/>${nl}`)
     
     let prFeatures = await prGetFeatures(prBody)
     let prText = await dictToString(prFeatures)
     summary.push(prText)
 
+    summary.push(`${nl}<hr/>${nl}`) // to let the edit text format nicely
     let out : string = summary.join('')
     console.log(out)
 }
@@ -96,7 +97,7 @@ async function dictToString(dict : {key: string, value: string[]}[]) {
         // first check if this feature file contains our 'all files' key
         // only one feature file can be an 'all files'.
         if (pair.value.includes(allFiles)) {
-            out.push(`${bullet}**${pair.key}:** ${allFiles}${nl}`)
+            out.push(`**${pair.key}:** ${allFiles}${nl}`)
         }
         else {
             let lines : string[] = []
@@ -106,7 +107,6 @@ async function dictToString(dict : {key: string, value: string[]}[]) {
             let wrapper = wrapIntoCollapsible(lines.join(''), pair.key)
             out.push(wrapper)
         }
-        out.push(`${nl}`)
     });
 
     return out.join('')
@@ -115,7 +115,7 @@ async function dictToString(dict : {key: string, value: string[]}[]) {
 function wrapIntoCollapsible(markdown : string, title : string) {
     let out = [`<details><summary>${title}</summary>${nl}<p>${nl}${nl}`]
     out.push(markdown)
-    out.push(`${nl}</p>${nl}</details>`)
+    out.push(`${nl}</p>${nl}</details>${nl}${nl}`)
     return out.join('')
 }
 
