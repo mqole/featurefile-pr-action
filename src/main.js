@@ -19,7 +19,21 @@ async function run() {
     const headsha = core.getInput('headsha')
     const prBody = github.context.payload.pull_request.body;
 
-    core.info(prBody)
+    core.info(`modified:`)
+    core.info(mod)
+    core.info('')
+    core.info(`removed:`)
+    core.info(rem)
+    core.info('')
+    core.info(`added:`)
+    core.info(add)
+    core.info('')
+    core.info(`basename:`)
+    core.info(basename)
+    core.info('')
+    core.info(`headname:`)
+    core.info(headname)
+    core.info('')
 
     let summary = [`### Feature File Summary; head commit ${headsha} merging into ${basesha}${nl}`]
     summary.push(`#### Here is a summary of all changes:${nl}<hr/>${nl}`)
@@ -27,9 +41,8 @@ async function run() {
     let prFeatures = await prGetFeatures(prBody)
     let prText = await dictToString(prFeatures)
     summary.push(prText)
-    
 
-    summary.push(`${nl}<hr/>${nl}${nl}`) // to let the edit text format nicely
+    summary.push(`${nl}<hr/>${nl}`)
     let out = summary.join('')
     core.info(out)
     core.setOutput('summary', out)

@@ -36,7 +36,7 @@ waga baga bobo
     let prText = await dictToString(prFeatures)
     summary.push(prText)
 
-    summary.push(`${nl}<hr/>${nl}${nl}`) // to let the edit text format nicely
+    summary.push(`${nl}<hr/>${nl}`)
     let out : string = summary.join('')
     console.log(out)
 }
