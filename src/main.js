@@ -29,7 +29,7 @@ async function run() {
     summary.push(prText)
     
 
-    summary.push(`${nl}<hr/>${nl}`) // to let the edit text format nicely
+    summary.push(`${nl}<hr/>${nl}${nl}`) // to let the edit text format nicely
     let out = summary.join('')
     core.info(out)
     core.setOutput('summary', out)
