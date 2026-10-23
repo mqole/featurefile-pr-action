@@ -1,7 +1,9 @@
 // newline
-const nl = '%0D%0A'
+const nl = '\n'
 // github bullet point
 const bullet = `- `
+// all files denotation
+const allFiles = 'All files'
 
 async function run() {
     // get inputs:
@@ -23,6 +25,8 @@ not a point
 
 some other shit
 waga baga bobo
+
+🔎 feature to include all files
 `
 
     let summary = [`Feature File Summary; head commit ${headsha} merging into ${basesha}${nl}`]
@@ -33,7 +37,6 @@ waga baga bobo
     summary.push(prText)
 
     let out : string = summary.join('')
-    out = await wrapIntoCollapsible(out)
     console.log(out)
 }
 
@@ -71,7 +74,7 @@ async function prGetFeatures(prBody : string) {
         }
         
         if (files.length < 1) {
-            files.push('All files')
+            files.push(allFiles)
         }     
         features.push({
             key: name,
@@ -90,20 +93,27 @@ async function dictToString(dict : {key: string, value: string[]}[]) {
     
     // i dont know how to do this properly LOL!!!!
     Object.entries(dict).forEach(([_, pair]) => {
-        out.push(`**${pair.key}:**${nl}`)
-        
-        Object.entries(pair.value).forEach(([_, line]) => {
-            out.push(`${bullet}${line}${nl}`)
-        });
+        // first check if this feature file contains our 'all files' key
+        // only one feature file can be an 'all files'.
+        if (pair.value.includes(allFiles)) {
+            out.push(`${bullet}**${pair.key}:** ${allFiles}${nl}`)
+        }
+        else {
+            let lines : string[] = []
+            Object.entries(pair.value).forEach(([_, line]) => {
+                lines.push(`${bullet}${line}${nl}`)
+            });
+            let wrapper = wrapIntoCollapsible(lines.join(''), pair.key)
+            out.push(wrapper)
+        }
         out.push(`${nl}`)
     });
 
     return out.join('')
 }
 
-
-async function wrapIntoCollapsible(markdown : string) {
-    let out = [`<details><summary>{title}</summary>${nl}<p>${nl}${nl}`]
+function wrapIntoCollapsible(markdown : string, title : string) {
+    let out = [`<details><summary>${title}</summary>${nl}<p>${nl}${nl}`]
     out.push(markdown)
     out.push(`${nl}</p>${nl}</details>`)
     return out.join('')

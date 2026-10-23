@@ -37394,9 +37394,11 @@ function getOctokit(token, options, ...additionalPlugins) {
 
 
 // newline
-const nl = '%0D%0A'
-// markdown bullet point
+const nl = '\n'
+// github bullet point
 const bullet = `- `
+// all files denotation
+const allFiles = 'All files'
 
 async function run() {
     // get inputs:
@@ -37419,7 +37421,6 @@ async function run() {
     summary.push(prText)
     
     let out = summary.join('')
-    out = await wrapIntoCollapsible(out)
     info(out)
     setOutput('summary', out)
 }
@@ -37477,11 +37478,19 @@ async function dictToString(dict) {
     
     // i dont know how to do this properly LOL!!!!
     Object.entries(dict).forEach(([_, pair]) => {
-        out.push(`**${pair.key}:**${nl}`)
-        
-        Object.entries(pair.value).forEach(([_, line]) => {
-            out.push(`${bullet}${line}${nl}`)
-        });
+        // first check if this feature file contains our 'all files' key
+        // only one feature file can be an 'all files'.
+        if (pair.value.includes(allFiles)) {
+            out.push(`${bullet}**${pair.key}:** ${allFiles}${nl}`)
+        }
+        else {
+            let lines = []
+            Object.entries(pair.value).forEach(([_, line]) => {
+                lines.push(`${bullet}${line}${nl}`)
+            });
+            let wrapper = wrapIntoCollapsible(lines.join(''), pair.key)
+            out.push(wrapper)
+        }
         out.push(`${nl}`)
     });
 
@@ -37489,7 +37498,7 @@ async function dictToString(dict) {
 }
 
 
-async function wrapIntoCollapsible(markdown) {
+function wrapIntoCollapsible(markdown) {
     let out = [`<details><summary>{title}</summary>${nl}<p>${nl}${nl}`]
     out.push(markdown)
     out.push(`${nl}</p>${nl}</details>`)
