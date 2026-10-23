@@ -21,8 +21,8 @@ async function run() {
 
     core.info(prBody)
 
-    let summary = [`Feature File Summary; head commit ${headsha} merging into ${basesha}${nl}`]
-    summary.push(`Here is a summary of all changes:${nl}${nl}`)
+    let summary = [`### Feature File Summary; head commit ${headsha} merging into ${basesha}${nl}`]
+    summary.push(`#### Here is a summary of all changes:${nl}${nl}`)
 
     let prFeatures = await prGetFeatures(prBody)
     let prText = await dictToString(prFeatures)
@@ -67,7 +67,7 @@ async function prGetFeatures(prBody) {
         }
         
         if (files.length < 1) {
-            files.push('All files')
+            files.push(allFiles)
         }     
         features.push({
             key: name,
@@ -106,8 +106,8 @@ async function dictToString(dict) {
 }
 
 
-function wrapIntoCollapsible(markdown) {
-    let out = [`<details><summary>{title}</summary>${nl}<p>${nl}${nl}`]
+function wrapIntoCollapsible(markdown, title) {
+    let out = [`<details><summary>${title}</summary>${nl}<p>${nl}${nl}`]
     out.push(markdown)
     out.push(`${nl}</p>${nl}</details>`)
     return out.join('')

@@ -37459,7 +37459,7 @@ async function prGetFeatures(prBody) {
         }
         
         if (files.length < 1) {
-            files.push('All files')
+            files.push(allFiles)
         }     
         features.push({
             key: name,
@@ -37498,8 +37498,8 @@ async function dictToString(dict) {
 }
 
 
-function wrapIntoCollapsible(markdown) {
-    let out = [`<details><summary>{title}</summary>${nl}<p>${nl}${nl}`]
+function wrapIntoCollapsible(markdown, title) {
+    let out = [`<details><summary>${title}</summary>${nl}<p>${nl}${nl}`]
     out.push(markdown)
     out.push(`${nl}</p>${nl}</details>`)
     return out.join('')
