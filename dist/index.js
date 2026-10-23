@@ -37421,7 +37421,7 @@ async function run() {
     let out = summary.join('')
     out = await wrapIntoCollapsible(out)
     info(out)
-    setOutput(out)
+    setOutput('summary', out)
 }
 
 async function prGetFeatures(prBody) {
