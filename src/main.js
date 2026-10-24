@@ -65,7 +65,7 @@ async function run() {
     summary += await addErrorMessages()
 
     console.log(summary)
-    // core.setOutput('summary', summary)
+    core.setOutput('summary', summary)
 }
 
 async function prGetFeatures(prBody, mod, rem, add) {
