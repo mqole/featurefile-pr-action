@@ -5,8 +5,27 @@ import * as github from "@actions/github";
 const nl = '\n'
 // github bullet point
 const bullet = `- `
-// all files denotation
-const allFiles = 'All files'
+// all files denotation (yes i know this looks kind of stupid go with it)
+const allFiles = {
+    key: 'All',
+    value: 'files'
+}
+
+// diffTypes
+class diffType {
+    static mod = "modified"
+    static rem = "removed"
+    static add = "added"
+    static na = "error"
+}
+
+// add a lil message to the end if files are modified, might be better to make a partial prototype
+// TODO: dont need this message if the modified file is in an extant feature file
+let modFlag = false
+
+// error messages to output
+let unknownFileList = []
+let noFilesInFeature = false
 
 async function run() {
     // get inputs:
@@ -35,20 +54,21 @@ async function run() {
     core.info(headname)
     core.info('')
 
-    let summary = [`### Feature File Summary; head commit ${headsha} merging into ${basesha}${nl}`]
-    summary.push(`#### Here is a summary of all changes:${nl}<hr/>${nl}`)
+    let summary = `### Feature File Summary; head commit ${headsha} merging into ${basesha}${nl}`
+    summary += `#### Here is a summary of all changes:${nl}<hr/>${nl}`
 
-    let prFeatures = await prGetFeatures(prBody)
+    let prFeatures = await prGetFeatures(prBody, mod, rem, add)
     let prText = await dictToString(prFeatures)
-    summary.push(prText)
+    summary += prText
 
-    summary.push(`${nl}<hr/>${nl}`)
-    let out = summary.join('')
-    core.info(out)
-    core.setOutput('summary', out)
+    summary += `${nl}<hr/>${nl}`
+    summary += await addErrorMessages()
+
+    console.log(summary)
+    // core.setOutput('summary', summary)
 }
 
-async function prGetFeatures(prBody) {
+async function prGetFeatures(prBody, mod, rem, add) {
     const featureKey = `🔎`
     const newLine = `\n`
 
@@ -62,7 +82,7 @@ async function prGetFeatures(prBody) {
         // handle name
         let nameEnd = featureSlice.search(newLine)
         let name = (featureSlice.slice(0, nameEnd)).trim()
-        core.info(`feature: ${name}`)
+        console.log(`feature: ${name}`)
 
         // iterate over filenames if applicable
         let files = []
@@ -70,18 +90,37 @@ async function prGetFeatures(prBody) {
         let nextLine = featureSlice.search(newLine) + newLine.length
         featureSlice = featureSlice.slice(nextLine)
 
+        // no contents, use all
+        // if has contents, but contents are invalid, DONT use all
+        let hasContents = false
+
         while (featureSlice.startsWith(bullet)) {
             // handle file
+            hasContents = true
             let fileEnd = featureSlice.search(newLine)
             let file = featureSlice.slice(bullet.length, fileEnd)
-            files.push(file)
-            core.info(`file: ${file}`)
+            
+            let fileType = await validateFile(file, mod, rem, add)
+            if (fileType == diffType.na) {
+                console.log(`ERROR: file '${file}' specified in PR body, but not found in changed files!`)
+                console.log(file)
+                unknownFileList.push(file)
+                console.log(unknownFileList)
+            }
+            else {
+                files.push({
+                    key: file,
+                    value: fileType
+                })
+                console.log(`file: ${file}`)
+                console.log(`type: ${fileType}`)
+            }
 
             featureSlice = featureSlice.slice(fileEnd + newLine.length)
             nextLine = featureSlice.search(newLine)
         }
         
-        if (files.length < 1) {
+        if (files.length < 1 && !hasContents) {
             files.push(allFiles)
         }     
         features.push({
@@ -89,42 +128,105 @@ async function prGetFeatures(prBody) {
             value: files
         })
 
-        core.info('')
+        console.log('')
         curSlice = curSlice.slice(startPos + featureKey.length) // it doesnt really matter what we set this to, so long as it doesnt have the emoji
     }
 
     return features
 }
 
+async function validateFile(file) {
+    if (mod.includes(file)) {
+        return diffType.mod
+    }
+    else if (rem.includes(file)) {
+        return diffType.rem
+    }
+    else if (add.includes(file)) {
+        return diffType.add
+    }
+    return diffType.na
+}
+
 async function dictToString(dict) {
-    let out = []
-    
-    // i dont know how to do this properly LOL!!!!
-    Object.entries(dict).forEach(([_, pair]) => {
+    let out = ""
+
+    for (const {key, value} of dict) {
         // first check if this feature file contains our 'all files' key
         // only one feature file can be an 'all files'.
-        if (pair.value.includes(allFiles)) {
-            out.push(`**${pair.key}:** ${allFiles}${nl}`)
+        if (value.includes(allFiles)) {
+            out += `**${key}:** All unspecified files${nl}` // TODO
         }
         else {
-            let lines = []
-            Object.entries(pair.value).forEach(([_, line]) => {
-                lines.push(`${bullet}${line}${nl}`)
-            });
-            let wrapper = wrapIntoCollapsible(lines.join(''), pair.key)
-            out.push(wrapper)
-        }
-    });
+            let addLines = ""
+            let remLines = ""
+            let modLines = ""
+            for (const file of value) {
+                let message = bullet + file.key + nl
+                switch (file.value) {
+                    case diffType.add:
+                        addLines += message
+                        break
+                    case diffType.rem:
+                        remLines += message
+                        break
+                    case diffType.mod:
+                        modLines += message
+                        break
+                    default:
+                        console.log(`ERROR: attempted to convert unidentified entry in dict '${key}': type not found for file '${file.key}'`)
+                }
+            }
+            let lines = ""
 
-    return out.join('')
+            if (addLines != "") {
+                lines += wrapIntoCollapsible(addLines, "**Added:**")
+            }
+            if (remLines != "") {
+                lines += wrapIntoCollapsible(remLines, "**Removed:**")
+            }
+            if (modLines != "") {
+                lines += wrapIntoCollapsible(modLines, "**Modified:**")
+                modFlag = true
+            }
+
+            if (lines != "")
+            {
+                out += wrapIntoCollapsible(lines, key)
+            }
+            else console.log(`ERROR: no valid files found for feature '${key}'`)
+        }    
+        out += nl;
+    }
+    return out
+}
+
+async function addErrorMessages() {
+    let markdown = ""
+
+    if (unknownFileList.length > 0) {
+        let lines = ""
+        for (let file of unknownFileList) {
+            lines += bullet + file + nl
+        }
+        markdown += wrapIntoCollapsible(lines, `**ERROR:** The following files were listed in the PR, but could not be found in the changed files:`)
+    }
+
+    if (noFilesInFeature) {
+        markdown += `**ERROR:** Some features in the PR have no files. Make sure:${nl}
+        - All file paths are spelled correctly${nl}
+        - If you're editing multiple features, you've listed the files that correspond to each feature`
+    }
+
+    return markdown
 }
 
 
 function wrapIntoCollapsible(markdown, title) {
-    let out = [`<details><summary>${title}</summary>${nl}<p>${nl}${nl}`]
-    out.push(markdown)
-    out.push(`${nl}</p>${nl}</details>${nl}${nl}`)
-    return out.join('')
+    let out = `<details><summary>${title}</summary>${nl}<p>${nl}`
+    out += markdown
+    out += `${nl}</p>${nl}</details>${nl}`
+    return out
 }
 
 run();
