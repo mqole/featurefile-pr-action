@@ -23,6 +23,9 @@ class diffType {
 // TODO: dont need this message if the modified file is in an extant feature file
 let modFlag = false
 
+// has 'all files' already been used?
+let allFlag = false
+
 // error messages to output
 let unknownFileList = []
 let noFilesInFeature = false
