@@ -37442,12 +37442,6 @@ async function run() {
     info(`added:`)
     info(add)
     info('')
-    info(`basename:`)
-    info(basename)
-    info('')
-    info(`headname:`)
-    info(headname)
-    info('')
 
     let summary = `### Feature File Summary; head commit ${headsha} merging into ${basesha}${nl}`
     summary += `#### Here is a summary of all changes:${nl}<hr/>${nl}`
@@ -37493,7 +37487,7 @@ async function prGetFeatures(prBody, mod, rem, add) {
             // handle file
             hasContents = true
             let fileEnd = featureSlice.search(newLine)
-            let file = featureSlice.slice(bullet.length, fileEnd)
+            let file = featureSlice.slice(bullet.length, fileEnd).trim()
             
             let fileType = await validateFile(file, mod, rem, add)
             if (fileType == diffType.na) {
@@ -37617,8 +37611,8 @@ async function addErrorMessages() {
 
     if (noFilesInFeature) {
         markdown += `ERROR: Some features in the PR have no files. Make sure:${nl}
-        - All file paths are spelled correctly${nl}
-        - If you're editing multiple features, you've listed the files that correspond to each feature`
+- All file paths are spelled correctly${nl}
+- If you're editing multiple features, you've listed the files that correspond to each feature`
     }
 
     return markdown
