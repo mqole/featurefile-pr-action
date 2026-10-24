@@ -98,7 +98,7 @@ async function prGetFeatures(prBody, mod, rem, add) {
             // handle file
             hasContents = true
             let fileEnd = featureSlice.search(newLine)
-            let file = featureSlice.slice(bullet.length, fileEnd)
+            let file = featureSlice.slice(bullet.length, fileEnd).trim()
             
             let fileType = await validateFile(file, mod, rem, add)
             if (fileType == diffType.na) {
@@ -180,13 +180,13 @@ async function dictToString(dict) {
             let lines = ""
 
             if (addLines != "") {
-                lines += wrapIntoCollapsible(addLines, "**Added:**")
+                lines += wrapIntoCollapsible(addLines, "Added:")
             }
             if (remLines != "") {
-                lines += wrapIntoCollapsible(remLines, "**Removed:**")
+                lines += wrapIntoCollapsible(remLines, "Removed:")
             }
             if (modLines != "") {
-                lines += wrapIntoCollapsible(modLines, "**Modified:**")
+                lines += wrapIntoCollapsible(modLines, "Modified:")
                 modFlag = true
             }
 
@@ -207,13 +207,13 @@ async function addErrorMessages() {
     if (unknownFileList.length > 0) {
         let lines = ""
         for (let file of unknownFileList) {
-            lines += bullet + file + nl
+            lines += nl + bullet + file
         }
-        markdown += wrapIntoCollapsible(lines, `**ERROR:** The following files were listed in the PR, but could not be found in the changed files:`)
+        markdown += wrapIntoCollapsible(lines, `ERROR: The following files were listed in the PR, but could not be found in the changed files:`)
     }
 
     if (noFilesInFeature) {
-        markdown += `**ERROR:** Some features in the PR have no files. Make sure:${nl}
+        markdown += `ERROR: Some features in the PR have no files. Make sure:${nl}
         - All file paths are spelled correctly${nl}
         - If you're editing multiple features, you've listed the files that correspond to each feature`
     }

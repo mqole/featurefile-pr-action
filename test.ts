@@ -184,13 +184,13 @@ async function dictToString(dict : {key: string, value: {key: string, value: str
             let lines = ""
 
             if (addLines != "") {
-                lines += wrapIntoCollapsible(addLines, "**Added:**")
+                lines += wrapIntoCollapsible(addLines, "Added:")
             }
             if (remLines != "") {
-                lines += wrapIntoCollapsible(remLines, "**Removed:**")
+                lines += wrapIntoCollapsible(remLines, "Removed:")
             }
             if (modLines != "") {
-                lines += wrapIntoCollapsible(modLines, "**Modified:**")
+                lines += wrapIntoCollapsible(modLines, "Modified:")
                 modFlag = true
             }
 
@@ -211,13 +211,13 @@ async function addErrorMessages() {
     if (unknownFileList.length > 0) {
         let lines = ""
         for (let file of unknownFileList) {
-            lines += bullet + file + nl
+            lines += nl + bullet + file
         }
-        markdown += wrapIntoCollapsible(lines, `**ERROR:** The following files were listed in the PR, but could not be found in the changed files:`)
+        markdown += wrapIntoCollapsible(lines, `ERROR: The following files were listed in the PR, but could not be found in the changed files:`)
     }
 
     if (noFilesInFeature) {
-        markdown += `**ERROR:** Some features in the PR have no files. Make sure:${nl}
+        markdown += `ERROR: Some features in the PR have no files. Make sure:${nl}
         - All file paths are spelled correctly${nl}
         - If you're editing multiple features, you've listed the files that correspond to each feature`
     }
