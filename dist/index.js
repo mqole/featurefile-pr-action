@@ -37572,14 +37572,16 @@ async function dictToString(dict) {
             let lines = ""
 
             if (addLines != "") {
-                lines += wrapIntoCollapsible(addLines, "Added:")
+                lines += `Added:${nl}`
+                lines += wrapIntoCodeBlock(addLines)+nl
             }
             if (remLines != "") {
-                lines += wrapIntoCollapsible(remLines, "Removed:")
+                lines += `Removed:${nl}`
+                lines += wrapIntoCodeBlock(remLines)+nl
             }
             if (modLines != "") {
-                lines += wrapIntoCollapsible(modLines, "Modified:")
-                modFlag = true
+                lines += `Modified:${nl}`
+                lines += wrapIntoCodeBlock(modLines)+nl
             }
 
             if (lines != "")
@@ -37601,7 +37603,8 @@ async function addErrorMessages() {
         for (let file of unknownFileList) {
             lines += nl + bullet + file
         }
-        markdown += wrapIntoCollapsible(lines, `ERROR: The following files were listed in the PR, but could not be found in the changed files:`)
+        markdown += `ERROR: The following files were listed in the PR, but could not be found in the changed files:${nl}`
+        markdown += wrapIntoCodeBlock(lines)+nl
     }
 
     if (noFilesInFeature) {
@@ -37615,9 +37618,16 @@ async function addErrorMessages() {
 
 
 function wrapIntoCollapsible(markdown, title) {
-    let out = `<details><summary>${title}</summary>${nl}<p>${nl}`
+    let out = `<details><summary>${title}</summary>${nl}<p>${nl}${nl}`
     out += markdown
     out += `${nl}</p>${nl}</details>${nl}`
+    return out
+}
+
+function wrapIntoCodeBlock(markdown) {
+    let out = `${nl}\`\`\`${nl}`
+    out += markdown
+    out += `${nl}\`\`\`${nl}`
     return out
 }
 
