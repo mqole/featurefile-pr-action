@@ -20,6 +20,9 @@ class diffType {
 // TODO: dont need this message if the modified file is in an extant feature file
 let modFlag = false
 
+// has 'all files' already been used?
+let allFlag = false
+
 // error messages to output
 let unknownFileList : string[] = []
 let noFilesInFeature = false
@@ -158,15 +161,19 @@ async function dictToString(dict : {key: string, value: {key: string, value: str
     for (const {key, value} of dict) {
         // first check if this feature file contains our 'all files' key
         // only one feature file can be an 'all files'.
-        if (value.includes(allFiles)) {
-            out += `**${key}:** All unspecified files${nl}` // TODO
+        if (value.includes(allFiles) && !allFlag) {
+            out += `**${key}:** All unspecified files${nl}`
+            allFlag = true
+        }
+        else if (allFlag) {
+            console.log(`ERROR: multiple features want to use all files! Discarding feature '${key}'`)
         }
         else {
             let addLines = ""
             let remLines = ""
             let modLines = ""
             for (const file of value) {
-                let message = bullet + file.key + nl
+                let message = nl + bullet + file.key
                 switch (file.value) {
                     case diffType.add:
                         addLines += message
@@ -201,6 +208,7 @@ async function dictToString(dict : {key: string, value: {key: string, value: str
                 out += wrapIntoCollapsible(lines, key)
             }
             else console.log(`ERROR: no valid files found for feature '${key}'`)
+            noFilesInFeature = true
         }    
         out += nl;
     }
@@ -237,7 +245,7 @@ function wrapIntoCollapsible(markdown : string, title : string) {
 }
 
 function wrapIntoCodeBlock(markdown : string) {
-    let out = `${nl}\`\`\`${nl}`
+    let out = `${nl}\`\`\`` // assumes we have a starting newline
     out += markdown
     out += `${nl}\`\`\`${nl}`
     return out

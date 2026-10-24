@@ -37490,7 +37490,7 @@ async function prGetFeatures(prBody, mod, rem, add) {
             // handle file
             hasContents = true
             let fileEnd = featureSlice.search(newLine)
-            let file = featureSlice.slice(bullet.length, fileEnd).trim()
+            let file = featureSlice.slice(bullet.length, fileEnd)
             
             let fileType = await validateFile(file, mod, rem, add)
             if (fileType == diffType.na) {
@@ -37546,15 +37546,19 @@ async function dictToString(dict) {
     for (const {key, value} of dict) {
         // first check if this feature file contains our 'all files' key
         // only one feature file can be an 'all files'.
-        if (value.includes(allFiles)) {
-            out += `**${key}:** All unspecified files${nl}` // TODO
+        if (value.includes(allFiles) && !allFlag) {
+            out += `**${key}:** All unspecified files${nl}`
+            allFlag = true
+        }
+        else if (allFlag) {
+            console.log(`ERROR: multiple features want to use all files! Discarding feature '${key}'`)
         }
         else {
             let addLines = ""
             let remLines = ""
             let modLines = ""
             for (const file of value) {
-                let message = bullet + file.key + nl
+                let message = nl + bullet + file.key
                 switch (file.value) {
                     case diffType.add:
                         addLines += message
@@ -37589,6 +37593,7 @@ async function dictToString(dict) {
                 out += wrapIntoCollapsible(lines, key)
             }
             else console.log(`ERROR: no valid files found for feature '${key}'`)
+            noFilesInFeature = true
         }    
         out += nl;
     }
@@ -37625,7 +37630,7 @@ function wrapIntoCollapsible(markdown, title) {
 }
 
 function wrapIntoCodeBlock(markdown) {
-    let out = `${nl}\`\`\`${nl}`
+    let out = `${nl}\`\`\`` // assumes we have a starting newline
     out += markdown
     out += `${nl}\`\`\`${nl}`
     return out
