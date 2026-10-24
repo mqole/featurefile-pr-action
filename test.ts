@@ -185,15 +185,15 @@ async function dictToString(dict : {key: string, value: {key: string, value: str
 
             if (addLines != "") {
                 lines += `Added:${nl}`
-                lines += wrapIntoCodeBlock(addLines)+nl
+                lines += wrapIntoCodeBlock(addLines)
             }
             if (remLines != "") {
                 lines += `Removed:${nl}`
-                lines += wrapIntoCodeBlock(remLines)+nl
+                lines += wrapIntoCodeBlock(remLines)
             }
             if (modLines != "") {
                 lines += `Modified:${nl}`
-                lines += wrapIntoCodeBlock(modLines)+nl
+                lines += wrapIntoCodeBlock(modLines)
             }
 
             if (lines != "")
