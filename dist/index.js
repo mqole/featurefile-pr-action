@@ -37491,7 +37491,7 @@ async function prGetFeatures(prBody, mod, rem, add) {
     return features
 }
 
-async function validateFile(file) {
+async function validateFile(file, mod, rem, add,) {
     if (mod.includes(file)) {
         return diffType.mod
     }
