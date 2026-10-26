@@ -71,8 +71,10 @@ waga baga bobo
 
     if (!checkBody(prBody)) {
         console.log(`No feature key found in PR body. Will not leave a comment.`)
+        //core.setOutput('body-found', 'false')
         return
     }
+    //core.setOutput('body-found', 'true')
 
     let summary = `### Feature File Summary; head commit ${headsha} merging into ${basesha}${nl}`
     summary += `#### Here is a summary of all changes:${nl}<hr/>${nl}`
@@ -161,7 +163,6 @@ function checkBody(prBody : string) {
     // check if anything damn exists
     if (prBody.search(featureKey) == -1)
         return false
-    //core.setOutput('body-found', true)
     return true
 }
 

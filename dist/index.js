@@ -37452,8 +37452,10 @@ async function run() {
 
     if (!checkBody(prBody)) {
         console.log(`No feature key found in PR body. Will not leave a comment.`)
+        setOutput('body-found', 'false')
         return
     }
+    setOutput('body-found', 'true')
 
     let summary = `### Feature File Summary; head commit ${headsha} merging into ${basesha}${nl}`
     summary += `#### Here is a summary of all changes:${nl}<hr/>${nl}`
@@ -37550,7 +37552,6 @@ function checkBody(prBody) {
     // check if anything damn exists
     if (prBody.search(featureKey) == -1)
         return false
-    setOutput('body-found', true)
     return true
 }
 
