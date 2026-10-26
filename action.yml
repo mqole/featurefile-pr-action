@@ -24,7 +24,6 @@ inputs:
 outputs:
   body-found:
     description: Returns true if this workflow finds a feature key in the PR description.
-    default: false
   summary:
     description: A Markdown summary of the Feature File that will be generated.
   modFiles:
