@@ -2,6 +2,8 @@
 const nl = '\n'
 // github bullet point
 const bullet = `- `
+// feature key
+const featureKey = `🔎`
 // all files denotation (yes i know this looks kind of stupid go with it)
 const allFiles = {
     key: 'All',
@@ -22,6 +24,11 @@ let modFlag = false
 
 // has 'all files' already been used?
 let allFlag = false
+
+// OUTPUTS!
+let modFiles : {key: string, value: string[]}[] = []
+let addFiles : {key: string, value: string[]}[] = []
+let remFiles : {key: string, value: string[]}[] = []
 
 // error messages to output
 let unknownFileList : string[] = []
@@ -61,6 +68,12 @@ waga baga bobo
 🔎 feature to include all files
 🔎 a SECOND feature to include all files
 `
+
+    if (!checkBody(prBody)) {
+        console.log(`No feature key found in PR body. Will not leave a comment.`)
+        return
+    }
+
     let summary = `### Feature File Summary; head commit ${headsha} merging into ${basesha}${nl}`
     summary += `#### Here is a summary of all changes:${nl}<hr/>${nl}`
 
@@ -71,12 +84,14 @@ waga baga bobo
     summary += `${nl}<hr/>${nl}`
     summary += await addErrorMessages()
 
-    console.log(summary)
+    console.log(summary += `${nl}<hr/>${nl}`)
+    console.log(modFiles)
+    console.log(addFiles)
+    console.log(remFiles)
     // core.setOutput('summary', summary)
 }
 
 async function prGetFeatures(prBody : string, mod : string[], rem : string[], add : string[]) {
-    const featureKey = `🔎`
     const newLine = `\n`
 
     let curSlice = prBody
@@ -107,7 +122,7 @@ async function prGetFeatures(prBody : string, mod : string[], rem : string[], ad
             let fileEnd = featureSlice.search(newLine)
             let file = featureSlice.slice(bullet.length, fileEnd).trim()
             
-            let fileType = await validateFile(file, mod, rem, add)
+            let fileType = await validateFile(file, name, mod, rem, add)
             if (fileType == diffType.na) {
                 console.log(`ERROR: file '${file}' specified in PR body, but not found in changed files!`)
                 console.log(file)
@@ -142,17 +157,42 @@ async function prGetFeatures(prBody : string, mod : string[], rem : string[], ad
     return features
 }
 
-async function validateFile(file : string, mod : string[], rem : string[], add : string[],) {
+function checkBody(prBody : string) {
+    // check if anything damn exists
+    if (prBody.search(featureKey) == -1)
+        return false
+    //core.setOutput('body-found', true)
+    return true
+}
+
+async function validateFile(file : string, name : string, mod : string[], rem : string[], add : string[],) {
     if (mod.includes(file)) {
+        await appendDict(modFiles, name, file)
         return diffType.mod
     }
     else if (rem.includes(file)) {
+        await appendDict(remFiles, name, file)
         return diffType.rem
     }
     else if (add.includes(file)) {
+        await appendDict(addFiles, name, file)
         return diffType.add
     }
     return diffType.na
+}
+
+async function appendDict(dict : {key: string, value: string[]}[], name : string, file : string) {
+    for (const {key, value} of dict) {
+        if (key == name) {
+            value.push(file)
+            return
+        }
+    }
+    // no key exists yet
+    dict.push({
+        key: name,
+        value: [file]
+    })
 }
 
 async function dictToString(dict : {key: string, value: {key: string, value: string}[]}[]) {
@@ -230,7 +270,7 @@ async function addErrorMessages() {
     if (noFilesInFeature) {
         markdown += `ERROR: Some features in the PR have no files. Make sure:${nl}
 - All file paths are spelled correctly${nl}
-- If you're editing multiple features, you've listed the files that correspond to each feature`
+- If you're editing multiple features, you've listed the files that correspond to each feature${nl}`
     }
 
     return markdown

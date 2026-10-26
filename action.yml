@@ -22,8 +22,17 @@ inputs:
     required: true
 
 outputs:
+  body-found:
+    description: Returns true if this workflow finds a feature key in the PR description.
+    default: false
   summary:
     description: A Markdown summary of the Feature File that will be generated.
+  modFiles:
+    description: Array of modified files.
+  addFiles:
+    description: Array of added files.
+  remFiles:
+    description: Array of removed files.  
 
 runs:
   using: node24
