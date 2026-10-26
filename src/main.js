@@ -77,15 +77,15 @@ async function run() {
     core.setOutput('summary', summary)
 
     core.info(`validated modified:`)
-    core.info(modFiles)
+    core.info(JSON.stringify(modFiles))
     core.setOutput('modFiles', modFiles)
     core.info('')
     core.info(`validated removed:`)
-    core.info(remFiles)
+    core.info(JSON.stringify(remFiles))
     core.setOutput('remFiles', remFiles)
     core.info('')
     core.info(`validated added:`)
-    core.info(addFiles)
+    core.info(JSON.stringify(addFiles))
     core.setOutput('addFiles', addFiles)
 }
 

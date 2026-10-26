@@ -37469,15 +37469,15 @@ async function run() {
     setOutput('summary', summary)
 
     info(`validated modified:`)
-    info(modFiles)
+    info(JSON.stringify(modFiles))
     setOutput('modFiles', modFiles)
     info('')
     info(`validated removed:`)
-    info(remFiles)
+    info(JSON.stringify(remFiles))
     setOutput('remFiles', remFiles)
     info('')
     info(`validated added:`)
-    info(addFiles)
+    info(JSON.stringify(addFiles))
     setOutput('addFiles', addFiles)
 }
 

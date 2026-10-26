@@ -85,9 +85,9 @@ waga baga bobo
     summary += await addErrorMessages()
 
     console.log(summary += `${nl}<hr/>${nl}`)
-    console.log(modFiles)
-    console.log(addFiles)
-    console.log(remFiles)
+    console.log(JSON.stringify(modFiles))
+    console.log(JSON.stringify(addFiles))
+    console.log(JSON.stringify(remFiles))
     // core.setOutput('summary', summary)
 }
 
